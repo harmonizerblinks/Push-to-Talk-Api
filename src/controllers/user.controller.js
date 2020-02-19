@@ -51,6 +51,7 @@ exports.login = (req, res) => {
                         fullname: user.fullname,
                         isAdmin: user.isAdmin,
                         email: user.email,
+                        imageurl: user.imageurl,
                         roles: user.roles
                     },
                 }, config.secret, {

@@ -13,7 +13,7 @@ verifyToken = async(req, res, next) => {
     }
     console.log(token);
     if (!token) {
-        return res.status(403).send({
+        return res.status(401).send({
             auth: false,
             message: 'No token provided.'
         });
@@ -21,9 +21,9 @@ verifyToken = async(req, res, next) => {
 
     jwt.verify(token, config.secret, async(err, decoded) => {
         if (err) {
-            return res.status(500).send({
+            return res.status(401).send({
                 auth: false,
-                message: 'Fail to Authentication. Error -> ' + err
+                message: 'You are not Authorized to Access this Resources' + err
             });
         }
         // console.log(decoded);
@@ -44,11 +44,11 @@ isAdmin = (req, res, next) => {
             if (err) {
                 if (err.kind === 'ObjectId') {
                     return res.status(404).send({
-                        message: "User not found with Username = " + req.body.username
+                        message: "User not found with Username = " + req.user._id
                     });
                 }
                 return res.status(500).send({
-                    message: "Error retrieving User with Username = " + req.body.username
+                    message: "Error retrieving User with Username = " + req.user._id
                 });
             }
 
