@@ -39,7 +39,7 @@ exports.create = async(req, res) => {
         }
         // console.log(result);
         // Create a Gallery
-        const gallery = new Gallery({ name: fname, imageurl: config.app + req.params.type + '/resize_' + fname });
+        const gallery = new Gallery({ name: fname, imageurl: req.params.type + '/' + fname });
 
         // Save a Gallery in the MongoDB
         gallery.save()

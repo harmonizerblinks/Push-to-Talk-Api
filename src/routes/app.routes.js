@@ -1,22 +1,28 @@
 module.exports = function(app) {
 
     var department = require('../controllers/department.controller.js');
+    var user = require('../controllers/user.controller.js');
+    var apps = require('../controllers/app.controller.js');
     var ideas = require('../controllers/idea.controller.js');
     const verify = require('../middleware/verifyJwtToken.middleware.js');
     // console.log('booking');
 
-    // Create a new Region
-    app.post('/api/bookings', department.create);
+    // App user Login
+    app.post('/app/login', user.login);
 
-    // Retrieve all Region
-    app.get('/api/bookings', department.findAll);
+    // Register App User
+    app.post('/app/register', apps.createuser);
 
-    // Retrieve a single Region by Id
-    app.get('/api/bookings/:bookingId', department.findOne);
+    // Retrieve all Department
+    app.get('/app/departments', department.findAll);
+
+    // Retrieve a single Department by Id
+    app.get('/app/department/:departmentId', apps.findOne);
 
     // Update a Region with Id
-    app.put('/api/bookings/:bookingId', department.update);
+    app.get('/app/user/:userId', apps.findOneUser);
 
-    // Delete a Region with Id
-    app.delete('/api/bookings/:bookingId', department.delete);
+    // Update a Region with Id
+    app.put('/app/user/:userId', apps.updateUser);
+
 }

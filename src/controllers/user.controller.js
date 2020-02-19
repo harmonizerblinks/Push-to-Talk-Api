@@ -24,15 +24,21 @@ exports.create = async(req, res) => {
 };
 
 exports.login = (req, res) => {
-    const username = req.body.username;
+    const email = req.body.email;
     const password = req.body.password
 
-    const query = { username };
+    const query = { email };
     User.findOne(query)
         .then(user => {
             if (!user) {
                 return res.status(404).send({
-                    message: "User not found with username " + username
+                    message: "User not found with username " + email
+                });
+            }
+
+            if (!user.isAdmin) {
+                return res.status(404).send({
+                    message: "User is not an Admin User"
                 });
             }
 
@@ -43,8 +49,7 @@ exports.login = (req, res) => {
                     data: {
                         id: user._id,
                         fullname: user.fullname,
-                        username: user.username,
-                        mobile: user.mobile,
+                        isAdmin: user.isAdmin,
                         email: user.email,
                         roles: user.roles
                     },
@@ -170,7 +175,7 @@ exports.findOne = (req, res) => {
 
 // Find User By username 
 exports.findOneByUsername = (req, res) => {
-    const query = { username: req.params.username }
+    const query = { email: req.params.email }
     User.findOne(query)
         .then(user => {
             if (!user) {
