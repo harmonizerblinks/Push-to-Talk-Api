@@ -11,10 +11,10 @@ const UserSchema = mongoose.Schema({
     departmentid: { type: Schema.Types.ObjectId, ref: 'department', required: false, default: null },
     password: { type: String, required: true },
     // usertype: { type: String, required: true },
-    isAdmin: { type: Boolean, required: true },
+    isAdmin: { type: Boolean, required: true, default: false },
     points: { type: Number, index: true, required: true, default: 0 },
     roles: { type: [String], required: true },
-    position: { type: String, required: true },
+    position: { type: String, required: true, default: 'Staff' },
     created: { type: Date, index: true, default: Date.now },
     updated: { type: Date, index: true, default: Date.now }
 });

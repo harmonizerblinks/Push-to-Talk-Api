@@ -22,7 +22,7 @@ const app = express();
 
 global.appRoot = path.resolve(__dirname);
 
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 8000;
 
 // Creating a Server
 let server = http.createServer(app);
