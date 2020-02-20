@@ -13,6 +13,9 @@ module.exports = function(app) {
     // Register App User
     app.post('/app/register', apps.createuser);
 
+    // Register App User
+    app.post('/api/register', apps.createuser);
+
     // Retrieve all Department
     app.get('/app/departments', department.findAll);
 
