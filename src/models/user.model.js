@@ -7,6 +7,7 @@ const UserSchema = mongoose.Schema({
     imageurl: { type: String, required: false, default: 'favicon.jpg' },
     email: { type: String, required: true, unique: true },
     mobile: { type: String, required: false, default: 0 },
+    departmentid: { type: Schema.Types.ObjectId, ref: 'department', required: false, default: null },
     password: { type: String, required: true },
     // usertype: { type: String, required: true },
     isAdmin: { type: Boolean, required: true },
