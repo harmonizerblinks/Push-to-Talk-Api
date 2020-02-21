@@ -30,7 +30,7 @@ verifyToken = async(req, res, next) => {
         req.user = decoded.data;
         req.body.muserid = decoded.data.id;
         if (req.body.userid == null) { req.body.userid = decoded.data.id; }
-        if (req.body.code == null) { req.body.code = await generateOTP(); }
+        if (req.body.code == null || req.body.code == '') { req.body.code = await generateOTP(); }
         // console.log(req.body);
 
         next();
