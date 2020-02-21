@@ -24,7 +24,7 @@ exports.create = async(req, res) => {
 };
 
 exports.login = (req, res) => {
-    const email = req.body.email;
+    const email = req.body.email.toLowerCase();
     const password = req.body.password
 
     const query = { email };
@@ -131,7 +131,7 @@ exports.profile = (req, res) => {
     if (req.user) {
         res.send(req.user);
     } else {
-        res.status(500).send({
+        res.status(401).send({
             message: "Authentication not Valid"
         });
     }

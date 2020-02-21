@@ -1,14 +1,14 @@
 module.exports = function(app) {
 
     var department = require('../controllers/department.controller.js');
-    var user = require('../controllers/user.controller.js');
+    // var user = require('../controllers/user.controller.js');
     var apps = require('../controllers/app.controller.js');
     var ideas = require('../controllers/idea.controller.js');
     const verify = require('../middleware/verifyJwtToken.middleware.js');
     // console.log('booking');
 
     // App user Login
-    app.post('/app/login', user.login);
+    app.post('/app/login', apps.login);
 
     // Register App User
     app.post('/app/register', apps.createuser);

@@ -48,9 +48,24 @@ exports.createuser = async(req, res) => {
     const user = new User(req.body);
     user.password = bcrypt.hashSync(req.body.password, 10),
 
-        await user.save()
-        .then(data => {
-            res.send(data);
+        user.save()
+        .then(async(data) => {
+            console.info('saved successfully');
+            const token = jwt.sign({
+                type: 'user',
+                data: {
+                    id: data._id,
+                    fullname: data.fullname,
+                    isAdmin: data.isAdmin,
+                    email: user.email,
+                    roles: data.roles
+                },
+            }, config.secret, {
+                expiresIn: 684800
+            });
+            console.log(token);
+            res.send({ success: true, access_token: token, date: Date.now });
+            // res.send(data);
         }).catch(err => {
             res.status(500).send({
                 message: err.message
@@ -58,7 +73,8 @@ exports.createuser = async(req, res) => {
         });
 };
 
-exports.login = (req, res) => {
+exports.login = async(req, res) => {
+    console.log('logging in');
     const email = req.body.email;
     const password = req.body.password
 
@@ -70,7 +86,6 @@ exports.login = (req, res) => {
                     message: "User not found with username " + username
                 });
             }
-
             var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
             if (passwordIsValid) {
                 const token = jwt.sign({
@@ -101,6 +116,16 @@ exports.login = (req, res) => {
         });
 };
 
+// Get User Profile
+exports.profile = (req, res) => {
+    if (req.user) {
+        res.send(req.user);
+    } else {
+        res.status(401).send({
+            message: "Authentication not Valid"
+        });
+    }
+};
 
 // FIND a User
 exports.findOneUser = (req, res) => {
