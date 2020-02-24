@@ -21,7 +21,22 @@ exports.create = (req, res) => {
 // FETCH all Ideas
 exports.findAll = (req, res) => {
     console.log('fine All');
-    Idea.find()
+    let query = [{
+        $lookup: {
+            from: 'users',
+            localField: 'userid',
+            foreignField: '_id',
+            as: 'user'
+        },
+    }, {
+        $lookup: {
+            from: 'departments',
+            localField: 'departmentid',
+            foreignField: '_id',
+            as: 'department'
+        },
+    }, { $sort: { created: 1 } }];
+    Idea.aggregate(query)
         .then(ideas => {
             // console.log(ideas)
             res.send(ideas);

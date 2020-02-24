@@ -377,7 +377,7 @@ exports.findAllIdeas = (req, res) => {
             foreignField: '_id',
             as: 'approve_user'
         },
-    }, { $sort: { date: 1 } }, { $match: { userid: ObjectId(req.params.userId) } }];
+    }, { $sort: { created: 1 } }, { $match: { userid: ObjectId(req.params.userId) } }];
     console.log('fine All');
     Idea.aggregate(query)
         .then(ideas => {
