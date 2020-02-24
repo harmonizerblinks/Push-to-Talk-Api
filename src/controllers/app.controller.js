@@ -8,8 +8,16 @@ const bcrypt = require('bcryptjs');
 const config = require('../config/mongodb.config.js');
 
 
-// FETCH all Regions
+// FETCH all Department
 exports.findAll = (req, res) => {
+    let query = [{
+        $lookup: {
+            from: 'users',
+            localField: 'approve_userid',
+            foreignField: '_id',
+            as: 'approve_user'
+        },
+    }, { $sort: { date: 1 } }];
     console.log('fine All');
     Department.find()
         .then(regions => {
@@ -24,28 +32,59 @@ exports.findAll = (req, res) => {
 
 // FIND a Department
 exports.findOne = (req, res) => {
-    Department.findById(req.params.regionId)
+    Department.findById(req.params.departmentId)
         .then(department => {
             if (!department) {
                 return res.status(404).send({
-                    message: "Department not found with id " + req.params.regionId
+                    message: "Department not found with id " + req.params.departmentId
                 });
             }
             res.send(slider);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "Department not found with id " + req.params.regionId
+                    message: "Department not found with id " + req.params.departmentId
                 });
             }
             return res.status(500).send({
-                message: "Error retrieving Department with id " + req.params.regionId
+                message: "Error retrieving Department with id " + req.params.departmentId
+            });
+        });
+};
+
+
+// FETCH all Users
+exports.findAllUsers = (req, res) => {
+    console.log('fine All');
+    let query = [{
+        $lookup: {
+            from: 'departments',
+            localField: 'departmentid',
+            foreignField: '_id',
+            as: 'department'
+        },
+    }, {
+        $lookup: {
+            from: 'ideas',
+            localField: '_id',
+            foreignField: 'userid',
+            as: 'ideas'
+        },
+    }, { $match: { isAdmin: false } }];
+
+    User.aggregate(query)
+        .then(users => {
+            // console.log(users)
+            res.send(users);
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message
             });
         });
 };
 
 // POST a User
-exports.createuser = async(req, res) => {
+exports.createUser = async(req, res) => {
     // console.log(req.body);
     // Create a User
     const user = new User(req.body);
@@ -61,6 +100,7 @@ exports.createuser = async(req, res) => {
                     fullname: data.fullname,
                     isAdmin: data.isAdmin,
                     email: user.email,
+                    departmentId: user.departmentId,
                     roles: data.roles
                 },
             }, config.secret, {
@@ -76,6 +116,7 @@ exports.createuser = async(req, res) => {
         });
 };
 
+// Login user
 exports.login = async(req, res) => {
     console.log('logging in');
     const email = req.body.email;
@@ -89,6 +130,11 @@ exports.login = async(req, res) => {
                     message: "User not found with email " + email
                 });
             }
+            if (user.isAdmin) {
+                return res.status(404).send({
+                    message: "Admin Account Can't user the app"
+                });
+            }
             var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
             if (passwordIsValid) {
                 const token = jwt.sign({
@@ -98,11 +144,15 @@ exports.login = async(req, res) => {
                         fullname: user.fullname,
                         isAdmin: user.isAdmin,
                         email: user.email,
+                        departmentid: user.departmentid,
                         roles: user.roles
                     },
                 }, config.secret, {
                     expiresIn: 684800
                 });
+                user.isLogin = true;
+                user.access_token = token;
+                User.findByIdAndUpdate(user._id, user, { new: true });
                 res.send({ success: true, access_token: token, date: Date.now });
             } else {
                 res.status(500).send({ success: false, message: 'Password is not correct' })
@@ -119,30 +169,150 @@ exports.login = async(req, res) => {
         });
 };
 
-// Get User Profile
+// Logout user
 exports.profile = (req, res) => {
     if (req.user) {
-        res.send(req.user);
+        User.findById(req.user.id)
+            .then(user => {
+
+                user.isLogin = true;
+                user.access_token = null;
+                User.findByIdAndUpdate(user._id, user, { new: true });
+                res.send({ output: 'Logout', mesaage: 'you have been logout successfully' });
+            }).catch(err => {
+                return res.status(200).send({
+                    message: "you have been logout successfully"
+                });
+            });
+        // res.send(req.user);
     } else {
         res.status(401).send({
             message: "Authentication not Valid"
         });
     }
-    res.status(401).send({
-        message: "Authentication not Valid"
-    });
+};
+
+// Get User Profile
+exports.profile = (req, res) => {
+    if (req.user) {
+        let query = [{
+            $lookup: {
+                from: 'departments',
+                localField: 'departmentid',
+                foreignField: '_id',
+                as: 'department'
+            },
+        }, { $match: { _id: ObjectId(req.user.id) } }];
+        User.aggregate(query)
+            .then(user => {
+                if (!user) {
+                    return res.status(404).send({
+                        message: "User not found with id " + req.params.userId
+                    });
+                }
+                user[0].password = null;
+                res.send(user[0]);
+            }).catch(err => {
+                if (err.kind === 'ObjectId') {
+                    return res.status(404).send({
+                        message: "User not found with id " + req.params.userId
+                    });
+                }
+                return res.status(500).send({
+                    message: "Error retrieving User with id " + req.params.userId
+                });
+            });
+        // res.send(req.user);
+    } else {
+        res.status(401).send({
+            message: "Authentication not Valid"
+        });
+    }
+    // res.status(401).send({
+    //     message: "Authentication not Valid"
+    // });
+};
+
+// Change Password
+exports.changePassword = (req, res) => {
+    const id = req.user.id;
+    const oldpassword = req.body.password;
+    const password = req.body.newpassword;
+
+    User.findById(id)
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({
+                    message: "User not found with username " + username
+                });
+            }
+
+            var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+            if (passwordIsValid) {
+                user.password = bcrypt.hashSync(req.body.newpassword, 10);
+
+                User.findByIdAndUpdate(id, user, { new: true })
+                    .then(use => {
+                        if (!use) {
+                            return res.status(404).send({
+                                message: "User not found with id " + req.params.userId
+                            });
+                        }
+                        res.send({
+                            message: "Password Changed successfully"
+                        });
+                    }).catch(err => {
+                        if (err.kind === 'ObjectId') {
+                            return res.status(404).send({
+                                message: "Invalid User "
+                            });
+                        }
+                        console.log(err);
+                        return res.status(500).send({
+                            message: "Error updating user Password "
+                        });
+                    });
+            } else {
+                res.status(500).send({ success: false, message: 'Password is not correct' })
+            }
+        }).catch(err => {
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "User not found with username " + username
+                });
+            }
+            return res.status(500).send({
+                message: "Error retrieving User with username " + username
+            });
+        });
 };
 
 // FIND a User
 exports.findOneUser = (req, res) => {
-    User.findById(req.params.userId)
+    let query = [{
+        $lookup: {
+            from: 'ideas',
+            localField: '_id',
+            foreignField: 'userid',
+            as: 'ideas'
+        },
+    }, {
+        $lookup: {
+            from: 'departments',
+            localField: 'departmentid',
+            foreignField: '_id',
+            as: 'department'
+        },
+    }, { $match: { _id: ObjectId(req.params.userId) } }];
+    // console.info(query);
+    User.aggregate(query)
         .then(user => {
             if (!user) {
                 return res.status(404).send({
                     message: "User not found with id " + req.params.userId
                 });
             }
-            res.send(user);
+            res.send(user[0]);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
@@ -190,14 +360,13 @@ exports.createIdea = (req, res) => {
     // Save a Idea in the MongoDB
     idea.save()
         .then(data => {
-            res.send(data);
+            res.send({ output: 'successful', message: 'Idea has been submitted for review.' });
         }).catch(err => {
             res.status(500).send({
                 message: err.message
             });
         });
 };
-
 
 // FETCH all Ideas
 exports.findAllIdeas = (req, res) => {
@@ -220,7 +389,6 @@ exports.findAllIdeas = (req, res) => {
             });
         });
 };
-
 
 // UPDATE a Idea
 exports.updateIdeas = (req, res) => {

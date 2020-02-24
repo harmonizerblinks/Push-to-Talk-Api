@@ -54,7 +54,8 @@ app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 // Set the static folder
-app.use('/public', express.static(path.join(__dirname, '../public')))
+app.use('/public', express.static(path.join(__dirname, '../public')));
+// app.use('/public/:type/:image', express.static(path.join(__dirname, '../public')));
 
 // Bodyparser Middleware
 // app.use(bodyParser.json({ limit: '10kb' }));

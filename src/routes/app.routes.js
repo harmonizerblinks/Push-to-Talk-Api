@@ -12,13 +12,19 @@ module.exports = function(app) {
     app.post('/app/login', apps.login);
 
     // Register App User
-    app.post('/app/register', apps.createuser);
+    app.post('/app/register', apps.createUser);
 
     // Register App User
-    app.post('/api/register', apps.createuser);
+    app.post('/api/register', apps.createUser);
+
+    // Change Password
+    app.post('/app/change-password', verify.verifyToken, apps.changePassword);
 
     // Retrieve user Detail
     app.get('/app/profile', verify.verifyToken, apps.profile);
+
+    // Retrieve user Users
+    app.get('/app/users/', verify.verifyToken, apps.findAllUsers);
 
     // Retrieve user Ideas
     app.get('/app/ideas/:userId', verify.verifyToken, apps.findAllIdeas);
@@ -36,7 +42,7 @@ module.exports = function(app) {
     app.get('/app/user/:userId', apps.findOneUser);
 
     // Update a Region with Id
-    app.put('/app/user/:userId', apps.updateUser);
+    app.put('/app/user/:userId', verify.verifyToken, apps.updateUser);
 
     // Retrieve all Department
     app.get('/orders', telefonika.findAll);

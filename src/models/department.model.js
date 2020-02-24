@@ -5,7 +5,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 const DepartmentSchema = mongoose.Schema({
     code: { type: String, index: true, required: true, unique: true },
     name: { type: String, index: true, required: true },
-    imageurl: { type: String, index: true, required: true },
+    imageurl: { type: String, index: true, required: true, default: 'favicon.png' },
     points: { type: Number, index: true, required: true, default: 0 },
     description: { type: String, index: true, required: true },
     status: { type: Boolean, required: true, default: true },
