@@ -41,7 +41,7 @@ exports.findOne = (req, res) => {
                     message: "Department not found with id " + req.params.departmentId
                 });
             }
-            res.send(slider);
+            res.send(department);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({

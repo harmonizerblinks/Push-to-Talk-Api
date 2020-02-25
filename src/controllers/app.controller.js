@@ -10,6 +10,7 @@ const config = require('../config/mongodb.config.js');
 
 // FETCH all Department
 exports.findAllDepartment = (req, res) => {
+    console.log('fine All');
     let query = [{
         $lookup: {
             from: 'users',
@@ -25,7 +26,6 @@ exports.findAllDepartment = (req, res) => {
             as: 'ideas'
         },
     }, { $sort: { created: 1 } }];
-    console.log('fine All');
     Department.aggregate(query)
         .then(departments => {
             // console.log(departments)
@@ -39,14 +39,29 @@ exports.findAllDepartment = (req, res) => {
 
 // FIND a Department
 exports.findOneDepartment = (req, res) => {
-    Department.findById(req.params.departmentId)
+    let query = [{
+        $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: 'departmentid',
+            as: 'users'
+        },
+    }, {
+        $lookup: {
+            from: 'ideas',
+            localField: '_id',
+            foreignField: 'departmentid',
+            as: 'ideas'
+        },
+    }, { $sort: { created: 1 } }, { $match: { _id: ObjectId(req.params.departmentId) } }];
+    Department.aggregate(query)
         .then(department => {
             if (!department) {
                 return res.status(404).send({
                     message: "Department not found with id " + req.params.departmentId
                 });
             }
-            res.send(slider);
+            res.send(department[0]);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
