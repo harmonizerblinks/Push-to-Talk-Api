@@ -9,20 +9,27 @@ const config = require('../config/mongodb.config.js');
 
 
 // FETCH all Department
-exports.findAll = (req, res) => {
+exports.findAllDepartment = (req, res) => {
     let query = [{
         $lookup: {
             from: 'users',
-            localField: 'approve_userid',
-            foreignField: '_id',
-            as: 'approve_user'
+            localField: '_id',
+            foreignField: 'departmentid',
+            as: 'users'
         },
-    }, { $sort: { date: 1 } }];
+    }, {
+        $lookup: {
+            from: 'ideas',
+            localField: '_id',
+            foreignField: 'departmentid',
+            as: 'ideas'
+        },
+    }, { $sort: { created: 1 } }];
     console.log('fine All');
-    Department.find()
-        .then(regions => {
-            // console.log(regions)
-            res.send(regions);
+    Department.aggregate(query)
+        .then(departments => {
+            // console.log(departments)
+            res.send(departments);
         }).catch(err => {
             res.status(500).send({
                 message: err.message
@@ -31,7 +38,7 @@ exports.findAll = (req, res) => {
 };
 
 // FIND a Department
-exports.findOne = (req, res) => {
+exports.findOneDepartment = (req, res) => {
     Department.findById(req.params.departmentId)
         .then(department => {
             if (!department) {

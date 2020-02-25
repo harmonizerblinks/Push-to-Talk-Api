@@ -3,8 +3,8 @@ const mongoose = require('mongoose'),
 const uniqueValidator = require('mongoose-unique-validator');
 
 const FaqSchema = mongoose.Schema({
-    title: { type: String, required: true, unique: true },
-    details: { type: String, required: false },
+    question: { type: String, required: true, unique: true },
+    answer: { type: String, required: false },
     userid: { type: Schema.Types.ObjectId, ref: 'user', required: true },
     created: { type: Date, index: true, default: Date.now }
 });

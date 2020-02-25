@@ -89,6 +89,8 @@ require('./routes/users.routes.js')(app);
 require('./routes/department.routes.js')(app);
 require('./routes/idea.routes.js')(app);
 require('./routes/gallery.routes.js')(app);
+require('./routes/faq.routes.js')(app);
+require('./routes/setup.routes.js')(app);
 require('./routes/app.routes.js')(app);
 
 // Api Documentation Setup

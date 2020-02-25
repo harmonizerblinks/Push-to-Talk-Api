@@ -33,10 +33,10 @@ module.exports = function(app) {
     app.post('/app/ideas', verify.verifyToken, apps.createIdea);
 
     // Retrieve all Department
-    app.get('/app/departments', department.findAll);
+    app.get('/app/departments', apps.findAllDepartment);
 
     // Retrieve a single Department by Id
-    app.get('/app/department/:departmentId', apps.findOne);
+    app.get('/app/department/:departmentId', apps.findOneDepartment);
 
     // Update a Region with Id
     app.get('/app/user/:userId', apps.findOneUser);
