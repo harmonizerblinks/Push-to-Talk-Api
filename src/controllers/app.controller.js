@@ -3,6 +3,8 @@ const mongoose = require('mongoose'),
 const Department = require('../models/department.model.js');
 const User = require('../models/user.model.js');
 const Idea = require('../models/idea.model.js');
+const Setup = require('../models/setup.model.js');
+const Faq = require('../models/faq.model.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const config = require('../config/mongodb.config.js');
@@ -73,7 +75,6 @@ exports.findOneDepartment = (req, res) => {
             });
         });
 };
-
 
 // FETCH all Users
 exports.findAllUsers = (req, res) => {
@@ -399,7 +400,7 @@ exports.findAllIdeas = (req, res) => {
             foreignField: '_id',
             as: 'approve_user'
         },
-    }, { $sort: { created: 1 } }, { $match: { userid: ObjectId(req.params.userId) } }];
+    }, { $sort: { created: -1 } }, { $match: { userid: ObjectId(req.params.userId) } }];
     console.log('fine All');
     Idea.aggregate(query)
         .then(ideas => {
@@ -434,6 +435,42 @@ exports.updateIdeas = (req, res) => {
             }
             return res.status(500).send({
                 message: "Error updating idea with id " + req.params.ideaId
+            });
+        });
+};
+
+// FETCH all Faqs
+exports.findAllFaqs = (req, res) => {
+    console.log('fine All');
+    Faq.find()
+        .then(faqs => {
+            // console.log(faqs)
+            res.send(faqs);
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message
+            });
+        });
+};
+
+// FIND a Setup
+exports.findOneSetup = (req, res) => {
+    Setup.findOne({ type: req.params.type })
+        .then(setup => {
+            if (!setup) {
+                return res.status(404).send({
+                    message: "Setup not found with id " + req.params.setupId
+                });
+            }
+            res.send(setup);
+        }).catch(err => {
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "Setup not found with id " + req.params.setupId
+                });
+            }
+            return res.status(500).send({
+                message: "Error retrieving Setup with id " + req.params.setupId
             });
         });
 };

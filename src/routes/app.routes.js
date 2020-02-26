@@ -29,14 +29,26 @@ module.exports = function(app) {
     // Retrieve user Ideas
     app.get('/app/ideas/:userId', verify.verifyToken, apps.findAllIdeas);
 
+    // Retrieve user Ideas
+    app.get('/app/ideas/:userId', apps.findAllIdeas);
+
     // Add user Ideas
     app.post('/app/ideas', verify.verifyToken, apps.createIdea);
+
+    // Update user Ideas
+    app.put('/app/ideas/:ideaId', apps.updateIdeas);
 
     // Retrieve all Department
     app.get('/app/departments', apps.findAllDepartment);
 
     // Retrieve a single Department by Id
     app.get('/app/department/:departmentId', apps.findOneDepartment);
+
+    // Retrieve all Faqs
+    app.get('/app/faqs', apps.findAllFaqs);
+
+    // Retrieve Setup
+    app.get('/app/setup/:type', apps.findOneSetup);
 
     // Update a Region with Id
     app.get('/app/user/:userId', apps.findOneUser);

@@ -6,7 +6,7 @@ const IdeaSchema = mongoose.Schema({
     code: { type: String, required: true, index: true },
     content: { type: String, required: true, unique: true, min: 10, },
     points: { type: Number, index: true, required: true, default: 0 },
-    departmentid: { type: Schema.Types.ObjectId, ref: 'department', required: false, default: null },
+    departmentid: { type: Schema.Types.ObjectId, ref: 'department', required: true },
     status: { type: String, required: true, default: 'Pending' },
     notify: { type: Boolean, required: true, default: false },
     created: { type: Date, index: true, default: Date.now },

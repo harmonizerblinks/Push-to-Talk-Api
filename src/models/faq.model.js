@@ -6,7 +6,9 @@ const FaqSchema = mongoose.Schema({
     question: { type: String, required: true, unique: true },
     answer: { type: String, required: false },
     userid: { type: Schema.Types.ObjectId, ref: 'user', required: true },
-    created: { type: Date, index: true, default: Date.now }
+    created: { type: Date, index: true, default: Date.now },
+    muserid: { type: Schema.Types.ObjectId, ref: 'user', required: true },
+    updated: { type: Date, index: true, default: Date.now }
 });
 
 FaqSchema.plugin(uniqueValidator);

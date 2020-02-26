@@ -41,7 +41,7 @@ exports.findOne = (req, res) => {
                     message: "Faq not found with id " + req.params.faqId
                 });
             }
-            res.send(slider);
+            res.send(faq);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({

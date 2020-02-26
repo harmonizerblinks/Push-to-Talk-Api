@@ -41,7 +41,7 @@ exports.findOne = (req, res) => {
                     message: "Setup not found with id " + req.params.setupId
                 });
             }
-            res.send(slider);
+            res.send(setup);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
