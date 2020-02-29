@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/mongodb.config.js');
 const User = require('../models/user.model.js');
-const Role = require('../models/role.model.js');
+// const Role = require('../models/role.model.js');
 
 verifyToken = async(req, res, next) => {
     // console.log(req.headers);
@@ -85,23 +85,23 @@ isPmOrAdmin = (req, res, next) => {
                 });
             }
 
-            Role.find({
-                '_id': { $in: user.roles }
-            }, (err, roles) => {
-                if (err)
-                    res.status(500).send("Error -> " + err);
+            // Role.find({
+            //     '_id': { $in: user.roles }
+            // }, (err, roles) => {
+            //     if (err)
+            //         res.status(500).send("Error -> " + err);
 
-                for (let i = 0; i < roles.length; i++) {
-                    let role = roles[i].name.toUpperCase();
-                    if (role === "PM" || role === "ADMIN") {
-                        next();
-                        return;
-                    }
-                }
+            //     for (let i = 0; i < roles.length; i++) {
+            //         let role = roles[i].name.toUpperCase();
+            //         if (role === "PM" || role === "ADMIN") {
+            //             next();
+            //             return;
+            //         }
+            //     }
 
-                res.status(403).send("Require PM or Admin Roles!");
-                return;
-            });
+            //     res.status(403).send("Require PM or Admin Roles!");
+            //     return;
+            // });
         });
 }
 

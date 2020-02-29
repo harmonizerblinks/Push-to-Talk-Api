@@ -1,4 +1,4 @@
-const Gallery = require('../models/gallery.model.js');
+const File = require('../models/file.model.js');
 const config = require('../config/mongodb.config.js');
 var path = require('path');
 const sharp = require('sharp');
@@ -6,7 +6,7 @@ const fs = require('fs');
 var appDir = path.dirname(require.main.filename);
 
 
-// POST a Gallery
+// POST a File
 exports.create = async(req, res) => {
     console.info('started');
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -17,7 +17,7 @@ exports.create = async(req, res) => {
         return res.status(400).send({ message: 'Image Type must be Provided.' });
     }
     console.log(req.files.file);
-    // The name of the input field (i.e. "gallery") is used to retrieve the uploaded file
+    // The name of the input field (i.e. "file") is used to retrieve the uploaded file
     const file = req.files.file;
     const fname = new Date().getTime() + file.name.replace(/ /g, "_");
     const name = appRoot + '/../public/original/' + fname;
@@ -29,20 +29,12 @@ exports.create = async(req, res) => {
             // console.log(err);
             return res.status(500).send(err);
         }
-        if (req.params.type === 'items') {
-            sharp(name).resize({ width: 500, height: 500 }).toFile(destination).then((data) => {
-                // fs.unlinkSync();
-                console.log(data);
-            }).catch((err) => {
-                console.log(err);
-            });
-        }
         // console.log(result);
-        // Create a Gallery
-        const gallery = new Gallery({ name: fname, imageurl: req.params.type + '/' + fname });
+        // Create a File
+        const file = new File({ name: fname, url: req.params.type + '/' + fname });
 
-        // Save a Gallery in the MongoDB
-        gallery.save()
+        // Save a File in the MongoDB
+        file.save()
             .then(data => {
                 res.send(data);
             }).catch(err => {
@@ -55,13 +47,13 @@ exports.create = async(req, res) => {
 };
 
 
-// FETCH all Gallerys
+// FETCH all Files
 exports.findAll = (req, res) => {
     console.log('fine All');
-    Gallery.find()
-        .then(gallerys => {
-            // console.log(gallerys)
-            res.send(gallerys);
+    File.find()
+        .then(files => {
+            // console.log(files)
+            res.send(files);
         }).catch(err => {
             res.status(500).send({
                 message: err.message
@@ -70,72 +62,72 @@ exports.findAll = (req, res) => {
 };
 
 
-// FIND a Gallery
+// FIND a File
 exports.findOne = (req, res) => {
-    Gallery.findById(req.params.galleryId)
-        .then(gallery => {
-            if (!gallery) {
+    File.findById(req.params.fileId)
+        .then(file => {
+            if (!file) {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
-            res.send(gallery);
+            res.send(file);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
             return res.status(500).send({
-                message: "Error retrieving Gallery with id " + req.params.galleryId
+                message: "Error retrieving File with id " + req.params.fileId
             });
         });
 };
 
-// UPDATE a Gallery
+// UPDATE a File
 exports.update = (req, res) => {
     var body = req.body;
     // console.log(body)
     body.updated = new Date();
-    // Find gallery and update it
-    Gallery.findByIdAndUpdate(req.params.galleryId, body, { new: true })
-        .then(gallery => {
-            if (!gallery) {
+    // Find file and update it
+    File.findByIdAndUpdate(req.params.fileId, body, { new: true })
+        .then(file => {
+            if (!file) {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
-            res.send(gallery);
+            res.send(file);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
             return res.status(500).send({
-                message: "Error updating gallery with id " + req.params.galleryId
+                message: "Error updating file with id " + req.params.fileId
             });
         });
 };
 
-// DELETE a Gallery
+// DELETE a File
 exports.delete = (req, res) => {
-    Gallery.findByIdAndRemove(req.params.galleryId)
-        .then(gallery => {
-            if (!gallery) {
+    File.findByIdAndRemove(req.params.fileId)
+        .then(file => {
+            if (!file) {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
-            res.send({ message: "Gallery deleted successfully!" });
+            res.send({ message: "File deleted successfully!" });
         }).catch(err => {
             if (err.kind === 'ObjectId' || err.name === 'NotFound') {
                 return res.status(404).send({
-                    message: "Gallery not found with id " + req.params.galleryId
+                    message: "File not found with id " + req.params.fileId
                 });
             }
             return res.status(500).send({
-                message: "Could not delete gallery with id " + req.params.galleryId
+                message: "Could not delete file with id " + req.params.fileId
             });
         });
 };

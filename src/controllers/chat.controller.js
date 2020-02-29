@@ -1,13 +1,13 @@
-const Country = require('../models/country.model.js');
+const Chat = require('../models/chat.model.js');
 
 
-// POST a Country
+// POST a Chat
 exports.create = (req, res) => {
-    // Create a Country
-    const country = new Country(req.body);
+    // Create a Chat
+    const chat = new Chat(req.body);
 
-    // Save a Country in the MongoDB
-    country.save()
+    // Save a Chat in the MongoDB
+    chat.save()
         .then(data => {
             res.send(data);
         }).catch(err => {
@@ -18,13 +18,13 @@ exports.create = (req, res) => {
 };
 
 
-// FETCH all Countrys
+// FETCH all Regions
 exports.findAll = (req, res) => {
     console.log('fine All');
-    Country.find()
-        .then(country => {
-            // console.log(country)
-            res.send(country);
+    Chat.find()
+        .then(chats => {
+            // console.log(chats)
+            res.send(chats);
         }).catch(err => {
             res.status(500).send({
                 message: err.message
@@ -32,72 +32,72 @@ exports.findAll = (req, res) => {
         });
 };
 
-// FIND a Country
+// FIND a Chat
 exports.findOne = (req, res) => {
-    Country.findById(req.params.countryId)
-        .then(country => {
-            if (!country) {
+    Chat.findById(req.params.chatId)
+        .then(chat => {
+            if (!chat) {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
-            res.send(country);
+            res.send(chat);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
             return res.status(500).send({
-                message: "Error retrieving Country with id " + req.params.countryId
+                message: "Error retrieving Chat with id " + req.params.chatId
             });
         });
 };
 
-// UPDATE a Country
+// UPDATE a Chat
 exports.update = (req, res) => {
     var body = req.body;
     // console.log(body)
     body.updated = new Date();
-    // Find country and update it
-    Country.findByIdAndUpdate(req.params.countryId, body, { new: true })
-        .then(country => {
-            if (!country) {
+    // Find chat and update it
+    Chat.findByIdAndUpdate(req.params.chatId, body, { new: true })
+        .then(chat => {
+            if (!chat) {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
-            res.send(country);
+            res.send(chat);
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
             return res.status(500).send({
-                message: "Error updating country with id " + req.params.countryId
+                message: "Error updating chat with id " + req.params.chatId
             });
         });
 };
 
-// DELETE a Country
+// DELETE a Chat
 exports.delete = (req, res) => {
-    Country.findByIdAndRemove(req.params.countryId)
-        .then(country => {
-            if (!country) {
+    Chat.findByIdAndRemove(req.params.chatId)
+        .then(chat => {
+            if (!chat) {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
-            res.send({ message: "Country deleted successfully!" });
+            res.send({ message: "Chat deleted successfully!" });
         }).catch(err => {
             if (err.kind === 'ObjectId' || err.name === 'NotFound') {
                 return res.status(404).send({
-                    message: "Country not found with id " + req.params.countryId
+                    message: "Chat not found with id " + req.params.chatId
                 });
             }
             return res.status(500).send({
-                message: "Could not delete country with id " + req.params.countryId
+                message: "Could not delete chat with id " + req.params.chatId
             });
         });
 };

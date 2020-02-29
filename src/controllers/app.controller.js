@@ -1,8 +1,7 @@
 const mongoose = require('mongoose'),
     ObjectId = mongoose.Types.ObjectId;
-const Department = require('../models/department.model.js');
+const chat = require('../models/chat.model.js');
 const User = require('../models/user.model.js');
-const Idea = require('../models/idea.model.js');
 const Setup = require('../models/setup.model.js');
 const Faq = require('../models/faq.model.js');
 const jwt = require('jsonwebtoken');
@@ -10,81 +9,15 @@ const bcrypt = require('bcryptjs');
 const config = require('../config/mongodb.config.js');
 
 
-// FETCH all Department
-exports.findAllDepartment = (req, res) => {
-    console.log('fine All');
-    let query = [{
-        $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: 'departmentid',
-            as: 'users'
-        },
-    }, {
-        $lookup: {
-            from: 'ideas',
-            localField: '_id',
-            foreignField: 'departmentid',
-            as: 'ideas'
-        },
-    }, { $sort: { created: 1 } }];
-    Department.aggregate(query)
-        .then(departments => {
-            // console.log(departments)
-            res.send(departments);
-        }).catch(err => {
-            res.status(500).send({
-                message: err.message
-            });
-        });
-};
-
-// FIND a Department
-exports.findOneDepartment = (req, res) => {
-    let query = [{
-        $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: 'departmentid',
-            as: 'users'
-        },
-    }, {
-        $lookup: {
-            from: 'ideas',
-            localField: '_id',
-            foreignField: 'departmentid',
-            as: 'ideas'
-        },
-    }, { $sort: { created: 1 } }, { $match: { _id: ObjectId(req.params.departmentId) } }];
-    Department.aggregate(query)
-        .then(department => {
-            if (!department) {
-                return res.status(404).send({
-                    message: "Department not found with id " + req.params.departmentId
-                });
-            }
-            res.send(department[0]);
-        }).catch(err => {
-            if (err.kind === 'ObjectId') {
-                return res.status(404).send({
-                    message: "Department not found with id " + req.params.departmentId
-                });
-            }
-            return res.status(500).send({
-                message: "Error retrieving Department with id " + req.params.departmentId
-            });
-        });
-};
-
 // FETCH all Users
 exports.findAllUsers = (req, res) => {
     console.log('fine All');
     let query = [{
         $lookup: {
-            from: 'departments',
-            localField: 'departmentid',
+            from: 'chats',
+            localField: 'chatid',
             foreignField: '_id',
-            as: 'department'
+            as: 'chat'
         },
     }, {
         $lookup: {
@@ -121,9 +54,9 @@ exports.createUser = async(req, res) => {
                 data: {
                     id: data._id,
                     fullname: data.fullname,
+                    username: data.username,
                     isAdmin: data.isAdmin,
                     email: user.email,
-                    departmentId: user.departmentId,
                     roles: data.roles
                 },
             }, config.secret, {
@@ -165,9 +98,9 @@ exports.login = async(req, res) => {
                     data: {
                         id: user._id,
                         fullname: user.fullname,
+                        username: user.username,
                         isAdmin: user.isAdmin,
                         email: user.email,
-                        departmentid: user.departmentid,
                         roles: user.roles
                     },
                 }, config.secret, {
@@ -183,11 +116,12 @@ exports.login = async(req, res) => {
         }).catch(err => {
             if (err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "User not found with username " + username
+                    message: "User not found with Email " + email
                 });
             }
+            console.info(err);
             return res.status(500).send({
-                message: "Error retrieving User with username " + username
+                message: "Error retrieving User with Email " + email
             });
         });
 };
@@ -220,10 +154,10 @@ exports.profile = (req, res) => {
     if (req.user) {
         let query = [{
             $lookup: {
-                from: 'departments',
-                localField: 'departmentid',
+                from: 'chats',
+                localField: 'chatid',
                 foreignField: '_id',
-                as: 'department'
+                as: 'chat'
             },
         }, { $match: { _id: ObjectId(req.user.id) } }];
         User.aggregate(query)
@@ -321,10 +255,10 @@ exports.findOneUser = (req, res) => {
         },
     }, {
         $lookup: {
-            from: 'departments',
-            localField: 'departmentid',
+            from: 'chats',
+            localField: 'chatid',
             foreignField: '_id',
-            as: 'department'
+            as: 'chat'
         },
     }, { $match: { _id: ObjectId(req.params.userId) } }];
     // console.info(query);

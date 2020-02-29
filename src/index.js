@@ -11,6 +11,7 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const passport = require('passport');
 const path = require('path');
+const siofu = require("socketio-file-upload");
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -22,7 +23,7 @@ const app = express();
 
 global.appRoot = path.resolve(__dirname);
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 9000;
 
 // Creating a Server
 let server = http.createServer(app);
@@ -48,6 +49,7 @@ mongoose.connect(Config.url)
 
 // defining the Middleware
 app.use(cors());
+app.use(siofu.router);
 app.use(fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 },
     useTempFiles: true,
@@ -85,10 +87,9 @@ app.use(passport.session());
 
 // require('./config/authguard.config.js')(passport);
 require('./routes/auth.routes.js')(app);
-require('./routes/users.routes.js')(app);
-require('./routes/department.routes.js')(app);
-require('./routes/idea.routes.js')(app);
-require('./routes/gallery.routes.js')(app);
+require('./routes/user.routes.js')(app);
+require('./routes/chat.routes.js')(app);
+require('./routes/file.routes.js')(app);
 require('./routes/faq.routes.js')(app);
 require('./routes/setup.routes.js')(app);
 require('./routes/app.routes.js')(app);
@@ -97,8 +98,8 @@ require('./routes/app.routes.js')(app);
 const swaggerOptions = {
     swaggerDefinition: {
         info: {
-            title: 'QSI',
-            description: 'Quality Service Institution',
+            title: 'Push to Talk App',
+            description: 'Push to Talk App',
             contact: {
                 name: 'Harmony Alabi',
             },
@@ -125,15 +126,17 @@ app.use((err, req, res, next) => {
 })
 
 
-io.on('connection', (socket) => {
-    console.info('a new user has connected')
-    socket.on('message', (msg) => {
-        io.emit('message', msg);
-    });
-    socket.on('disconnect', (socket) => {
-        console.info('a user has disconnected');
-    });
-});
+require('./socket.js')(io);
+
+// io.on('connection', (socket) => {
+//     console.info('a new user has connected')
+//     socket.on('message', (msg) => {
+//         io.emit('message', msg);
+//     });
+//     socket.on('disconnect', (socket) => {
+//         console.info('a user has disconnected');
+//     });
+// });
 
 
 // Start Server using environment port

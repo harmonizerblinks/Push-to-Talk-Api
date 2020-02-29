@@ -49,6 +49,7 @@ exports.login = (req, res) => {
                     data: {
                         id: user._id,
                         fullname: user.fullname,
+                        username: user.username,
                         isAdmin: user.isAdmin,
                         email: user.email,
                         imageurl: user.imageurl,
