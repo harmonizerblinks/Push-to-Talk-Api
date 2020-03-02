@@ -10,9 +10,9 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         console.info('a new user has connected')
         connections.push(socket);
-        var uploader = new siofu();
-        uploader.dir = (path.join(__dirname, '../public'));
-        uploader.listen(socket);
+        // var uploader = new siofu();
+        // uploader.dir = (path.join(__dirname, '../public'));
+        // uploader.listen(socket);
 
 
         socket.on('message', (msg) => {
@@ -60,9 +60,9 @@ module.exports = (io) => {
             // 	music: 'data/music',
             // 	document: 'data/document'
             // },
-            uploadDir: 'data', // simple directory
-            accepts: ['audio/mpeg', 'audio/mp3'], // chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
-            maxFileSize: 4194304, // 4 MB. default is undefined(no limit)
+            uploadDir: (path.join(__dirname, '../public')), // simple directory
+            accepts: ['audio/mpeg', 'audio/mp3', 'images/*'], // chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
+            maxFileSize: 5194304, // 4 MB. default is undefined(no limit)
             chunkSize: 10240, // default is 10240(1KB)
             transmissionDelay: 0, // delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
             overwrite: true // overwrite file if exists, default is true.
