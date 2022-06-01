@@ -26,7 +26,7 @@
         "mongoose-unique-validator": "^2.0.3",
         "passport": "^0.4.0",
         "passport-jwt": "^4.0.0",
-        "sharp": "^0.24.0",
+        "sharp": "^0.30.5",
         "socket.io": "^2.3.0",
         "socket.io-file": "^2.0.31",
         "socketio-file-upload": "^0.7.0",
